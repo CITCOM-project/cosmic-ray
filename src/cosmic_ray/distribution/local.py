@@ -30,7 +30,7 @@ class LocalDistributor(Distributor):
         for work_item in pending_work:
             result = await mutate_and_test(
                 mutations=work_item.mutations,
-                test_command=test_command,
+                test_command=test_command + f" {work_item.job_id}",
                 timeout=timeout,
             )
             on_task_complete(work_item.job_id, result)
