@@ -81,7 +81,7 @@ class HttpDistributor(Distributor):
 
             # Use an available URL to process the task
             url = urls.pop()
-            fetcher = asyncio.create_task(send_request(url, work_item, test_command, timeout))
+            fetcher = asyncio.create_task(send_request(url, work_item, test_command + f" {work_item.job_id}", timeout))
             fetchers[fetcher] = url, work_item.job_id
 
         # Drain the remaining work
