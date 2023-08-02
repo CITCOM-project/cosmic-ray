@@ -64,6 +64,7 @@ class HttpDistributor(Distributor):
                 # TODO: Do something with the exception
                 log.exception("Error fetching result")
                 result = WorkResult(worker_outcome=WorkerOutcome.ABNORMAL, output=str(exc))
+                log.info(result)
             finally:
                 del fetchers[task]
                 urls.append(url)
@@ -102,6 +103,7 @@ async def send_request(url, work_item: WorkItem, test_command, timeout):
 
     Returns: A `WorkResult`.
     """
+    log.info(f"TIMEOUT: {timeout}")
     parameters = {
         "mutations": [
             {
@@ -115,8 +117,9 @@ async def send_request(url, work_item: WorkItem, test_command, timeout):
         "timeout": timeout,
     }
     log.info("Sending HTTP request to %s", url)
-    async with aiohttp.request("POST", url, json=parameters) as resp:
+    async with aiohttp.request("POST", url, json=parameters, timeout=aiohttp.ClientTimeout(timeout)) as resp:
         result = await resp.json()
+        log.info(f"RESULT: {result}")
         # TODO: Account for possibility that `data` is the wrong shape.
         return WorkResult(
             worker_outcome=result["worker_outcome"],
